@@ -147,8 +147,7 @@ namespace Best.HTTP.Response
         /// <param name="error">The exception that occurred during download, if any.</param>
         internal virtual void CompleteAdding(Exception error)
         {
-            if (HTTPManager.Logger.Level <= Shared.Logger.Loglevels.Information)
-                HTTPManager.Logger.Information(nameof(DownloadContentStream), $"CompleteAdding({error})", this.Response?.Context);
+            HTTPManager.Logger.Information(nameof(DownloadContentStream), $"CompleteAdding({error})", this.Response?.Context);
 
             this._isCompleted = true;
 

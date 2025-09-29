@@ -10,42 +10,50 @@ public class ManageLineButtons : MonoBehaviour, IPointerEnterHandler,IPointerExi
 {
 
 	[SerializeField]
-	private SlotBehaviour slotManager;
+	private PayoutCalculation payManager;
 	[SerializeField]
 	private TMP_Text num_text;
+	[SerializeField]
+	private Sprite Disabled_Button;
+	[SerializeField]
+	private GameObject _ConnectedLine;
+	internal bool isEnabled = true;
 
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{
 		//if (Application.platform == RuntimePlatform.WebGLPlayer && !Application.isMobilePlatform)
 		//{
-			//Debug.Log("run on pointer enter");
-			slotManager.GenerateStaticLine(num_text);
-		//}
-	}
+		if (isEnabled)
+		{
+			if (_ConnectedLine) _ConnectedLine.SetActive(true);
+		}
+        //}
+    }
 	public void OnPointerExit(PointerEventData eventData)
 	{
 		//if (Application.platform == RuntimePlatform.WebGLPlayer && !Application.isMobilePlatform)
-		//{
-			//Debug.Log("run on pointer exit");
-			slotManager.DestroyStaticLine();
-		//}
-	}
+		//      {
+		if (isEnabled)
+		{
+			if (_ConnectedLine) _ConnectedLine.SetActive(false);
+		}
+        //}
+    }
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		if (Application.platform == RuntimePlatform.WebGLPlayer && Application.isMobilePlatform)
+		if (Application.platform == RuntimePlatform.WebGLPlayer && Application.isMobilePlatform && isEnabled)
 		{
+			payManager.ResetLines();
 			this.gameObject.GetComponent<Button>().Select();
-			//Debug.Log("run on pointer down");
-			slotManager.GenerateStaticLine(num_text);
+			if (_ConnectedLine) _ConnectedLine.SetActive(true);
 		}
 	}
 	public void OnPointerUp(PointerEventData eventData)
 	{
-		if (Application.platform == RuntimePlatform.WebGLPlayer && Application.isMobilePlatform)
+		if (Application.platform == RuntimePlatform.WebGLPlayer && Application.isMobilePlatform && isEnabled)
 		{
-			//Debug.Log("run on pointer up");
-			slotManager.DestroyStaticLine();
+			if (_ConnectedLine) _ConnectedLine.SetActive(false);
 			DOVirtual.DelayedCall(0.1f, () =>
 			{
 				this.gameObject.GetComponent<Button>().spriteState = default;

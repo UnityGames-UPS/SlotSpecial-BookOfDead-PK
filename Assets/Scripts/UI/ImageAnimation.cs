@@ -21,8 +21,6 @@ public class ImageAnimation : MonoBehaviour
 
 	public bool doLoopAnimation = true;
 
-	public bool playOnAwake = false;
-
 	[HideInInspector]
 	public ImageState currentAnimationState;
 
@@ -36,6 +34,11 @@ public class ImageAnimation : MonoBehaviour
 
 	public float delayBetweenLoop;
 
+	public bool StartOnAwake = false;
+
+	[SerializeField]
+	private Sprite OriginalSprite;
+
 	private void Awake()
 	{
 		if (Instance == null)
@@ -46,15 +49,15 @@ public class ImageAnimation : MonoBehaviour
 
     private void Start()
     {
-        if (playOnAwake)
-        {
-			StartAnimation();
-        }
-    }
+		OriginalSprite = rendererDelegate.sprite;
+	}
 
     private void OnEnable()
 	{
-
+		if(StartOnAwake)
+        {
+			StartAnimation();
+        }
 	}
 
 	private void OnDisable()
@@ -113,12 +116,13 @@ public class ImageAnimation : MonoBehaviour
 
 	public void StopAnimation()
 	{
-		if (currentAnimationState != 0)
-		{
-			rendererDelegate.sprite = textureArray[0];
-			CancelInvoke("AnimationProcess");
-			currentAnimationState = ImageState.NONE;
-		}
+
+			if (currentAnimationState != 0)
+			{
+				rendererDelegate.sprite = textureArray[0];
+				CancelInvoke("AnimationProcess");
+				currentAnimationState = ImageState.NONE;
+			}
 	}
 
 	public void RevertToInitialState()

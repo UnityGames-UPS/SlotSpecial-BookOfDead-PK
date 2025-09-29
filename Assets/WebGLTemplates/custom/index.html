@@ -95,7 +95,6 @@
         productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
       };
 
-        
         var script = document.createElement("script");
         script.src = loaderUrl;
         script.onload = () => {
@@ -108,15 +107,15 @@
         
         document.body.appendChild(script);
         window.addEventListener('load', resizeCanvas());
-  </script>
-     <!-- <script type="text/javascript">
-        console.log = function() {};
-        console.warn = function() {};
-        console.error = function() {};
-    </script> -->
-    <script>
       window.focus();
+
+  </script>
+     <script type="text/javascript">
+       console.log = function() {};
+       console.warn = function() {};
+       console.error = function() {};
     </script>
+
 
 </body>
 

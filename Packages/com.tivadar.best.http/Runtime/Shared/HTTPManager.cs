@@ -259,8 +259,6 @@ namespace Best.HTTP.Shared
             PerHostSettings.Clear();
             PerHostSettings.Add("*", new HostSettings());
 
-            HostManager.Clear();
-
             LocalCache = null;
 
             HTTPManager.Logger.Information("HTTPManager", "Reset called!");

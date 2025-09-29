@@ -14,9 +14,6 @@ namespace Best.HTTP.Shared.PlatformSupport.Network.Tcp.Streams
     {
         public Action<NonblockingBCTLSStream, TCPStreamer, AbstractTls13Client, Exception> OnNegotiated;
 
-        public long MaxBufferSize { get => Volatile.Read(ref this._maxBufferSize); set => Interlocked.Exchange(ref this._maxBufferSize, value); }
-        private long _maxBufferSize;
-
         private TlsClientProtocol _tlsClientProtocol;
         private AbstractTls13Client _tlsClient;
 
@@ -26,6 +23,7 @@ namespace Best.HTTP.Shared.PlatformSupport.Network.Tcp.Streams
         private TCPStreamer _streamer;
         private int _sendBufferSize;
         private bool _disposeStreamer;
+        private uint _maxBufferSize;
 
         private int peek_listIdx;
         private int peek_pos;
@@ -47,8 +45,7 @@ namespace Best.HTTP.Shared.PlatformSupport.Network.Tcp.Streams
 
             if (streamer.IsConnectionClosed)
                 CallOnNegotiated(new Exception("Connection closed before TLS negotiation started!"));
-
-            this._maxBufferSize = maxBufferSize;
+            _maxBufferSize = maxBufferSize;
         }
 
         public override void BeginPeek()
@@ -145,7 +142,7 @@ namespace Best.HTTP.Shared.PlatformSupport.Network.Tcp.Streams
         //  3.) prevent other read/write attempts.
         private void PullContentFromStreamer()
         {
-            while (!this._disposed && this._streamer.Length > 0 && this._length < this.MaxBufferSize)
+            while (!this._disposed && this._streamer.Length > 0 && this._length < this._maxBufferSize)
             {
                 var tmp = this._streamer.DequeueReceived();
 
@@ -198,7 +195,7 @@ namespace Best.HTTP.Shared.PlatformSupport.Network.Tcp.Streams
                 var readCount = base.Read(buffer, offset, count);
 
                 // pull content from the streamer, if buffered amount is less then the desired.
-                if (base.Length <= this.MaxBufferSize)
+                if (base.Length <= this._maxBufferSize)
                 {
                     try
                     {
