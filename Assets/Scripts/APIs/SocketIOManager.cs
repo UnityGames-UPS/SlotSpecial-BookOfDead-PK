@@ -41,7 +41,7 @@ public class SocketIOManager : MonoBehaviour
     [SerializeField]
     private string testToken;
 
-    protected string gameID = "SL-ZML";
+    protected string gameID = "SL-BOD";
     // protected string gameID = "";
     private const int maxReconnectionAttempts = 6;
     private readonly TimeSpan reconnectionDelay = TimeSpan.FromSeconds(10);
@@ -382,7 +382,7 @@ public class SocketIOManager : MonoBehaviour
 
     private void PopulateSlotSocket(List<string> LineIds)
     {
-        slotManager.shuffleInitialMatrix();
+        // slotManager.shuffleInitialMatrix();
         for (int i = 0; i < LineIds.Count; i++)
         {
             slotManager.FetchLines(LineIds[i], i);
@@ -717,7 +717,24 @@ public class SentDeta
     public double lastWinning;
     public int index;
 }
-
+public class Features
+{
+    public FreeSpin freeSpin { get; set; }
+    public Gamble gamble { get; set; }
+}
+public class FreeSpin
+{
+    public bool isTriggered { get; set; }
+    public int freeSpinCount { get; set; }
+    public int scatterCount { get; set; }
+    public int totalAwarded { get; set; }
+    public int retriggers { get; set; }
+}
+public class Gamble
+{
+    public string type { get; set; }
+    public bool enabled { get; set; }
+}
 
 [Serializable]
 public class GambleResult
@@ -785,6 +802,7 @@ public class Root
     //Initial Data
     public string id { get; set; }
     public GameData gameData { get; set; }
+    public Features features { get; set; }
     public UiData uiData { get; set; }
     public Player player { get; set; }
     //Bonus Data
@@ -805,7 +823,9 @@ public class Jackpot
 public class Payload
 {
     public double winAmount { get; set; }
-    public List<Win> wins { get; set; }
+    public List<LineWin> lineWins { get; set; }
+    public int scatterCount { get; set; }
+    public int activeLines { get; set; }
     //gamble
     public bool playerWon { get; set; }
     public double currentWinning { get; set; }
@@ -815,6 +835,14 @@ public class Payload
     //bonus
     public double payout { get; set; }
 }
+public class LineWin
+{
+    public int lineIndex { get; set; }
+    public List<int> positions { get; set; }
+    public List<int> pattern { get; set; }
+}
+
+
 [Serializable]
 public class Cards
 {
@@ -833,8 +861,11 @@ public class Win
 [Serializable]
 public class FreeSpins
 {
-    public int count { get; set; }
-    public bool isFreeSpin { get; set; }
+    public bool isTriggered { get; set; }
+    public int freeSpinCount { get; set; }
+    public int scatterCount { get; set; }
+    public int totalAwarded { get; set; }
+    public int retriggers { get; set; }
 }
 
 [SerializeField]

@@ -8,15 +8,11 @@ using System;
 
 public class GambleController : MonoBehaviour
 {
-    
-    // UI and Components References
-    [Header("UI and Components")]
-    [SerializeField] private GameObject gamble_game; // The main gamble game object
-    [SerializeField] private Button doubleButton; // Button for starting gameble game
     [SerializeField] private SocketIOManager socketManager; // Reference to the SocketIO Manager
     [SerializeField] private AudioController audioController; // Reference to the Audio Controller
-    [SerializeField] internal List<CardFlip> allcards = new List<CardFlip>(); // List of all card flip objects
-    [SerializeField] private TMP_Text winamount; // Text to display the win amount
+    [Space]
+    [Header("UI and Components")]
+    [SerializeField] private GameObject gamble_game; // The main gamble game object
     [SerializeField] private SlotBehaviour slotController; // Reference to the Slot Controller
     [SerializeField] private Sprite[] HeartSpriteList; // List of heart suit sprites
     [SerializeField] private Sprite[] ClubSpriteList; // List of club suit sprites
@@ -24,6 +20,28 @@ public class GambleController : MonoBehaviour
     [SerializeField] private Sprite[] DiamondSpriteList; // List of diamond suit sprites
     [SerializeField] private Sprite cardCover; // Default card cover sprite
     [SerializeField] private CardFlip DealerCard_Script; // Reference to the dealer's card flip script
+
+
+    [Space]
+    [Header("User Input")]
+    [SerializeField] private Button doubleButton; // Button for starting gameble game
+    [SerializeField] private Button RedBtn; // Button for starting gameble game
+    [SerializeField] private Button BlackBtn; // Button for starting gameble game
+    [SerializeField] private Button SpadeBtn; // Button for starting gameble game
+    [SerializeField] private Button JackBtn; // Button for starting gameble game
+    [SerializeField] private Button HeartBtn; // Button for starting gameble game
+    [SerializeField] private Button DiamondBtn; // Button for starting gameble game
+
+    [Space]
+    [Header("TExts")]
+    [SerializeField] private TMP_Text ColourWin; // Text to display the win amount
+    [SerializeField] private TMP_Text SuitWin; // Text to display the win amount
+    [SerializeField] private TMP_Text winamount; // Text to display the win amount
+
+    [Space(20)]
+    // UI and Components References
+    [Header("UI and Components")]
+    [SerializeField] internal List<CardFlip> allcards = new List<CardFlip>(); // List of all card flip objects
 
     // Gamble Section References
     [Header("Gamble Section References")]
@@ -52,7 +70,7 @@ public class GambleController : MonoBehaviour
     private Tweener Gamble_Tween_Scale = null; // Tweener for scaling the double button
     private bool isOut = false;
     #region Initialization
-  
+
     private void Start()
     {
         // Setup event listeners for buttons
@@ -66,10 +84,10 @@ public class GambleController : MonoBehaviour
         if (m_Collect_Button)
         {
             m_Collect_Button.onClick.RemoveAllListeners();
-            m_Collect_Button.onClick.AddListener(()=> { OnReset();slotController.GambleCollect(); });
+            m_Collect_Button.onClick.AddListener(() => { OnReset(); slotController.GambleCollect(); });
         }
 
-         //Double Button Setup
+        //Double Button Setup
         if (m_Double_Button)
         {
             m_Double_Button.onClick.RemoveAllListeners();
@@ -99,8 +117,8 @@ public class GambleController : MonoBehaviour
         isOut = false;
         if (GambleEnd_Object) GambleEnd_Object.SetActive(false); // Hide end screen
 
-        if(!isRepeat)
-        isAutoSpinOn = slotController.IsAutoSpin;
+        if (!isRepeat)
+            isAutoSpinOn = slotController.IsAutoSpin;
 
         GambleTweeningAnim(false); // Stop animation
         slotController.DeactivateGamble(); // Deactivate the gamble slot
@@ -110,7 +128,7 @@ public class GambleController : MonoBehaviour
 
         if (audioController) audioController.PlayButtonAudio(); // Play button click audio
         if (gamble_game) gamble_game.SetActive(true); // Activate gamble game object
-        loadingScreen.SetActive(true); // Show loading screen
+
         AllCardToggle(true);
         StartCoroutine(loadingRoutine()); // Start loading routine
         StartCoroutine(GambleCoroutine(isRepeat)); // Start gamble coroutine
@@ -154,19 +172,19 @@ public class GambleController : MonoBehaviour
     #endregion
 
     #region Card Handling
-    private cardStruct ChoseARandomeCard(int val =-1)
+    private cardStruct ChoseARandomeCard(int val = -1)
     {
         cardStruct cardx = new cardStruct();
-        string suit ;
-        int value ;
+        string suit;
+        int value;
 
         int index = UnityEngine.Random.Range(0, cardSuits.Length);
         suit = cardSuits[index];
 
-        if (val== -1)
+        if (val == -1)
         {
-            value = UnityEngine.Random.Range(0, 13);    
-            
+            value = UnityEngine.Random.Range(0, 13);
+
         }
         else
         {
@@ -181,9 +199,9 @@ public class GambleController : MonoBehaviour
         cardStruct newCard = null;
         newCard = ChoseARandomeCard();
 
-        if(newCard == dealerCard && newCard == playerCard )
+        if (newCard == dealerCard && newCard == playerCard)
         {
-           return FindUniqueCard();
+            return FindUniqueCard();
         }
         else
         {
@@ -198,23 +216,23 @@ public class GambleController : MonoBehaviour
         //spare1Card = new cardStruct();
         //spare2Card = new cardStruct();
 
-        dealerCard = ChoseARandomeCard(socketManager.GambleData.payload.cards.dealerCard-1);
-        playerCard = ChoseARandomeCard(socketManager.GambleData.payload.cards.playerCard-1);
-        spare1Card = FindUniqueCard(); 
+        dealerCard = ChoseARandomeCard(socketManager.GambleData.payload.cards.dealerCard - 1);
+        playerCard = ChoseARandomeCard(socketManager.GambleData.payload.cards.playerCard - 1);
+        spare1Card = FindUniqueCard();
         spare2Card = FindUniqueCard();
 
-      
 
-        highcard_Sprite = CardSet(dealerCard.suit,dealerCard.value);
+
+        highcard_Sprite = CardSet(dealerCard.suit, dealerCard.value);
         lowcard_Sprite = CardSet(playerCard.suit, playerCard.value);
         spare1card_Sprite = CardSet(spare1Card.suit, spare1Card.value);
-        spare2card_Sprite = CardSet(spare2Card.suit, spare2Card.value);                  
+        spare2card_Sprite = CardSet(spare2Card.suit, spare2Card.value);
     }
 
     // Determines the sprite for a given card suit and value
     private Sprite CardSet(string suit, int value)
     {
-      
+
         Sprite tempSprite = null;
         switch (suit.ToUpper())
         {
@@ -258,10 +276,13 @@ public class GambleController : MonoBehaviour
 
     internal void AllCardToggle(bool istrue)
     {
-        for (int i = 0; i < allcards.Count; i++)
-        {
-            allcards[i].Card_Button.interactable = istrue;
-        }
+        BlackBtn.interactable = istrue;
+        RedBtn.interactable = istrue;
+
+        SpadeBtn.interactable = istrue;
+        DiamondBtn.interactable = istrue;
+        HeartBtn.interactable = istrue;
+        JackBtn.interactable = istrue;
     }
     // Main coroutine for handling the gamble process
     IEnumerator GambleCoroutine(bool isRepeate = false)
@@ -272,10 +293,10 @@ public class GambleController : MonoBehaviour
             allcards[i].once = false;
         }
         if (!isRepeate) socketManager.OnGamble();
-       // else socketManager.OnGamble(); // Send gamble request                                        //hh
+        // else socketManager.OnGamble(); // Send gamble request                                        //hh
 
         yield return new WaitUntil(() => socketManager.isResultdone); // Wait for result
-        
+
         gambleStart = true; // Mark gamble as started
     }
 
@@ -325,12 +346,13 @@ public class GambleController : MonoBehaviour
         DealerCard_Script.Card_Button.image.sprite = cardCover;
         DealerCard_Script.once = false;
         toggleDoubleButton(false);
-        if (isAutoSpinOn) {
+        if (isAutoSpinOn)
+        {
 
 
             slotController.AutoSpin();
         }
-        
+
     }
 
     #endregion
@@ -343,7 +365,7 @@ public class GambleController : MonoBehaviour
         if (DealerCard_Script) DealerCard_Script.cardImage = highcard_Sprite;
         return lowcard_Sprite;
 
-                 
+
     }
 
     // Flip all the cards when the game ends
@@ -373,20 +395,20 @@ public class GambleController : MonoBehaviour
         if (socketManager.GambleData.payload.playerWon)                 //hh
         {
             winamount.text = "YOU WIN\n" + socketManager.ResultData.payload.winAmount.ToString();
-           // slotController.TotalWin_text.text =  socketManager.GambleData.payload.currentWinning.ToString();
+            // slotController.TotalWin_text.text =  socketManager.GambleData.payload.currentWinning.ToString();
             if (GambleEnd_Object) GambleEnd_Object.SetActive(true);
         }
         else
         {
             winamount.text = "YOU LOSE\n0";
-          //  slotController.TotalWin_text.text = "0";
+            //  slotController.TotalWin_text.text = "0";
             StartCoroutine(Collectroutine());
             //if(!isOut)
             //{
             //    socketManager.OnCollect();
             //    isOut = true;
             //}
-           
+
         }
     }
 
