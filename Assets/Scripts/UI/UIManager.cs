@@ -18,6 +18,9 @@ public class UIManager : MonoBehaviour
     [Header("Popus UI")]
     [SerializeField]
     private GameObject MainPopup_Object;
+    [SerializeField]
+    private GameObject PayPopup_Object;
+
 
     [Header("info Popup")]
     [SerializeField]
@@ -28,9 +31,10 @@ public class UIManager : MonoBehaviour
     private Button Next_Button;
     [SerializeField]
     private Button Previous_Button;
-    private int paginationCounter = 1;
+    private int paginationCounter = 0;
     [SerializeField] private GameObject[] PageList;
-    [SerializeField] private Button[] paginationButtonGrp;
+    [SerializeField] private GameObject[] LightList;
+    [SerializeField] private Button InfoButton;
     [SerializeField] private Button Infoback_button;
     [SerializeField]
     private TMP_Text[] SymbolsText;
@@ -100,7 +104,8 @@ public class UIManager : MonoBehaviour
     [Header("Megawin Popup")]
     [SerializeField] private GameObject megawin;
     [SerializeField] private TMP_Text megawin_text;
-    [SerializeField] private Image Win_Image;
+    [SerializeField] private TMP_Text HederMiscWin;
+    [SerializeField] private ImageAnimation Win_Image;
     [SerializeField] private Sprite HugeWin_Sprite;
     [SerializeField] private Sprite BigWin_Sprite;
     [SerializeField] private Sprite MegaWin_Sprite;
@@ -177,7 +182,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         if (Info_Button) Info_Button.onClick.RemoveAllListeners();
-        if (Info_Button) Info_Button.onClick.AddListener(delegate { paginationCounter = 1; GoToPage(0); OpenPopup(PaytablePopup_Object); });
+        if (Info_Button) Info_Button.onClick.AddListener(delegate { OpenPopup(PaytablePopup_Object); });
 
         if (PaytableExit_Button) PaytableExit_Button.onClick.RemoveAllListeners();
         if (PaytableExit_Button) PaytableExit_Button.onClick.AddListener(delegate { ClosePopup(PaytablePopup_Object); });
@@ -188,19 +193,7 @@ public class UIManager : MonoBehaviour
         if (Previous_Button) Previous_Button.onClick.RemoveAllListeners();
         if (Previous_Button) Previous_Button.onClick.AddListener(delegate { TurnPage(false); });
 
-        if (Previous_Button) Previous_Button.interactable = false;
-
-        if (paginationButtonGrp[0]) paginationButtonGrp[0].onClick.RemoveAllListeners();
-        if (paginationButtonGrp[0]) paginationButtonGrp[0].onClick.AddListener(delegate { GoToPage(0); });
-
-        if (paginationButtonGrp[1]) paginationButtonGrp[1].onClick.RemoveAllListeners();
-        if (paginationButtonGrp[1]) paginationButtonGrp[1].onClick.AddListener(delegate { GoToPage(1); });
-
-        if (paginationButtonGrp[2]) paginationButtonGrp[2].onClick.RemoveAllListeners();
-        if (paginationButtonGrp[2]) paginationButtonGrp[2].onClick.AddListener(delegate { GoToPage(2); });
-
-        if (paginationButtonGrp[3]) paginationButtonGrp[3].onClick.RemoveAllListeners();
-        if (paginationButtonGrp[3]) paginationButtonGrp[3].onClick.AddListener(delegate { GoToPage(3); });
+        //   if (Previous_Button) Previous_Button.interactable = false;
 
         if (Infoback_button) Infoback_button.onClick.RemoveAllListeners();
         if (Infoback_button) Infoback_button.onClick.AddListener(delegate { ClosePopup(PaytablePopup_Object); });
@@ -290,6 +283,7 @@ public class UIManager : MonoBehaviour
 
     private void StartFreeSpins(int spins)
     {
+        Debug.Log("DevTest" + "here4");
         if (MainPopup_Object) MainPopup_Object.SetActive(false);
         if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(false);
         slotManager.FreeSpin(spins);
@@ -297,7 +291,7 @@ public class UIManager : MonoBehaviour
 
     internal void FreeSpinProcess(int spins)
     {
-
+        Debug.Log("DevTest" + "here3");
         int ExtraSpins = spins - FreeSpins;
         FreeSpins = spins;
 
@@ -313,30 +307,52 @@ public class UIManager : MonoBehaviour
 
     internal void PopulateWin(int type, double amount)
     {
+        if (megawin_text)
+        {
+            // Make text initially transparent
+            var color = megawin_text.color;
+            color.a = 0f;
+            megawin_text.color = color;
+        }
         double initAmount = 0;
         double originalAmount = amount;
         switch (type)
         {
             case 1:
-                if (Win_Image) Win_Image.sprite = BigWin_Sprite;
+                if (HederMiscWin) HederMiscWin.text = "Big Win";
                 break;
             case 2:
-                if (Win_Image) Win_Image.sprite = HugeWin_Sprite;
+                if (HederMiscWin) HederMiscWin.text = "Huge Win";
                 break;
             case 3:
-                if (Win_Image) Win_Image.sprite = MegaWin_Sprite;
+                if (HederMiscWin) HederMiscWin.text = "Mega Win";
                 break;
             case 4:
-                if (Win_Image) Win_Image.sprite = Scater_Sprite;
+                if (HederMiscWin) HederMiscWin.text = "Total Win";
                 break;
         }
         if (megawin) megawin.SetActive(true);
         if (MainPopup_Object) MainPopup_Object.SetActive(true);
+        Win_Image.StartAnimation();
 
-        DOTween.To(() => initAmount, (val) => initAmount = val, amount, 1f).OnUpdate(() =>
+
+
+        // Animate the number and fade-in together
+        DOTween.To(() => initAmount, x => initAmount = x, amount, 1f)
+            .OnUpdate(() =>
+            {
+                if (megawin_text)
+                {
+                    // Update the number
+                    megawin_text.text = initAmount.ToString("F2");
+                }
+            });
+
+        // Fade-in text
+        if (megawin_text)
         {
-            if (megawin_text) megawin_text.text = initAmount.ToString("f2");
-        });
+            megawin_text.DOFade(1f, 1f).From(0f);
+        }
 
         DOVirtual.DelayedCall(3.5f, OnClickMegaWinHide);
     }
@@ -455,42 +471,62 @@ public class UIManager : MonoBehaviour
         if (audioController) audioController.PlayButtonAudio();
 
         if (type)
-            paginationCounter++;
+        {
+            if (paginationCounter < 2)
+            {
+
+                PageList[paginationCounter].SetActive(false);
+                LightList[paginationCounter].SetActive(false);
+                paginationCounter++;
+            }
+
+        }
         else
-            paginationCounter--;
+        {
+            if (paginationCounter > 0)
+            {
+
+                PageList[paginationCounter].SetActive(false);
+                LightList[paginationCounter].SetActive(false);
+
+                paginationCounter--;
+            }
+        }
 
 
-        GoToPage(paginationCounter - 1);
+        LightList[paginationCounter].SetActive(true);
+
+        PageList[paginationCounter].SetActive(true);
 
 
     }
 
-    private void GoToPage(int index)
-    {
+    // private void GoToPage(int index)
+    // {
 
-        paginationCounter = index + 1;
+    //     paginationCounter = index + 1;
 
-        paginationCounter = Mathf.Clamp(paginationCounter, 1, 6);
+    //     paginationCounter = Mathf.Clamp(paginationCounter, 1, 6);
 
-        if (Next_Button) Next_Button.interactable = !(paginationCounter >= 6);
+    //     if (Next_Button) Next_Button.interactable = !(paginationCounter >= 6);
 
-        if (Previous_Button) Previous_Button.interactable = !(paginationCounter <= 1);
+    //     if (Previous_Button) Previous_Button.interactable = !(paginationCounter <= 1);
 
-        for (int i = 0; i < PageList.Length; i++)
-        {
-            PageList[i].SetActive(false);
-        }
+    //     for (int i = 0; i < PageList.Length; i++)
+    //     {
+    //         PageList[i].SetActive(false);
+    //     }
 
-        for (int i = 0; i < paginationButtonGrp.Length; i++)
-        {
-            paginationButtonGrp[i].interactable = true;
-            paginationButtonGrp[i].transform.GetChild(0).gameObject.SetActive(false);
-        }
+    //     for (int i = 0; i < paginationButtonGrp.Length; i++)
+    //     {
+    //         paginationButtonGrp[i].interactable = true;
+    //         paginationButtonGrp[i].transform.GetChild(0).gameObject.SetActive(false);
+    //     }
 
-        PageList[paginationCounter - 1].SetActive(true);
-        paginationButtonGrp[paginationCounter - 1].interactable = false;
-        paginationButtonGrp[paginationCounter - 1].transform.GetChild(0).gameObject.SetActive(true);
-    }
+    //     PageList[paginationCounter - 1].SetActive(true);
+    //     paginationButtonGrp[paginationCounter - 1].interactable = false;
+    //     paginationButtonGrp[paginationCounter - 1].transform.GetChild(0).gameObject.SetActive(true);
+    // }
 
     private void ChangeSound()
     {

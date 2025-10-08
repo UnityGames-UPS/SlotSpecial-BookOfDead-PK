@@ -8,6 +8,7 @@ public class CardFlip : MonoBehaviour
 {
     [SerializeField] internal Sprite cardImage;
     [SerializeField] internal Button Card_Button;
+    [SerializeField] internal Image Card_Img;
 
     [SerializeField] private SocketIOManager SocketManager;
     [SerializeField] private GambleController gambleController;
@@ -18,48 +19,47 @@ public class CardFlip : MonoBehaviour
 
     private void Start()
     {
-        Card_transform = Card_Button.GetComponent<RectTransform>();
-        if (Card_Button) Card_Button.onClick.RemoveAllListeners();
-        if (Card_Button) Card_Button.onClick.AddListener(FlipMainCard);
+        Card_transform = gameObject.GetComponent<RectTransform>();
+        // if (Card_Button) Card_Button.onClick.RemoveAllListeners();
+        // if (Card_Button) Card_Button.onClick.AddListener(FlipMainCard);
     }
 
-    internal void FlipMyObject()
+    internal void FlipMyObject(Sprite img)
     {
-        if (!once && gambleController.gambleStart)
-        {
-            Card_transform.localEulerAngles = new Vector3(0, 180, 0);
-            Card_transform.DOLocalRotate(Vector3.zero, 1, RotateMode.FastBeyond360);
-            once = true;
-            DOVirtual.DelayedCall(0.3f, changeSprite);
-        }
+
+        Card_transform.localEulerAngles = new Vector3(0, 180, 0);
+        Card_transform.DOLocalRotate(Vector3.zero, 1, RotateMode.FastBeyond360);
+        once = true;
+        cardImage = img;
+        DOVirtual.DelayedCall(0.3f, changeSprite);
+
     }
 
-    private void FlipMainCard()
-    {
-        gambleController.AllCardToggle(false);
-        StartCoroutine(FlipMainObject());
-    }
+    // private void FlipMainCard()
+    // {
+    //     gambleController.AllCardToggle(false);
+    //     StartCoroutine(FlipMainObject());
+    // }
 
-    private IEnumerator FlipMainObject()
-    {
-        //gambleController.RunOnCollect();
+    // private IEnumerator FlipMainObject()
+    // {
+    //     //gambleController.RunOnCollect();
 
-        SocketManager.GambleDraw();
-        yield return new WaitUntil(() => SocketManager.isResultdone);
-        gambleController.ComputeCards(); // Compute card sprites
-        cardImage = gambleController.GetCard();
-        FlipMyObject();
-        yield return null;
-    }
+    //     // SocketManager.GambleDraw();
+    //     yield return new WaitUntil(() => SocketManager.isResultdone);
+    //     gambleController.ComputeCards(); // Compute card sprites
+    //     cardImage = gambleController.GetCard();
+    //     //  FlipMyObject();
+    //     yield return null;
+    // }
 
     private void changeSprite()
     {
-        if (Card_Button)
-        {
-            Card_Button.image.sprite = cardImage;
-            Card_Button.interactable = false;
-            gambleController.FlipAllCard();
-        }
+
+        Card_Img.sprite = cardImage;
+
+
+
     }
 
     internal void Reset()

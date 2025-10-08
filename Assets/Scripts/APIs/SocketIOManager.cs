@@ -62,6 +62,7 @@ public class SocketIOManager : MonoBehaviour
     private int missedPongs = 0;
     private const int MaxMissedPongs = 5;
     private Coroutine PingRoutine; //Back2 end
+    private double lastwin;
 
     // protected string nameSpace = "game";
     private void Start()
@@ -465,6 +466,7 @@ public class SocketIOManager : MonoBehaviour
                     //Debug.Log(jsonObject);
                     // myData.message.GameData.FinalResultReel = ConvertListOfListsToStrings(myData.message.GameData.ResultReel);
                     // myData.message.GameData.FinalsymbolsToEmit = TransformAndRemoveRecurring(myData.message.GameData.symbolsToEmit);
+                    lastwin = myData.payload.winAmount;
                     ResultData = myData;
                     PlayerData = myData.player;
                     isResultdone = true;
@@ -485,6 +487,7 @@ public class SocketIOManager : MonoBehaviour
 
                     GambleData = myData;
                     PlayerData = myData.player;
+                    lastwin = myData.payload.winAmount;
                     UpdateUiOnResult(myData);
                     isResultdone = true;
                     break;
@@ -493,7 +496,7 @@ public class SocketIOManager : MonoBehaviour
                 {
                     //Debug.Log(jsonObject);
                     PlayerData = myData.player;
-                    UpdateUiOnResult(myData);
+                    // UpdateUiOnResult(myData);
                     isResultdone = true;
                     break;
                 }
@@ -528,7 +531,7 @@ public class SocketIOManager : MonoBehaviour
     {
         PlayerData = myData.player;
         ResultData.payload.winAmount = myData.payload.winAmount;
-        Debug.Log(myData.payload.currentWinning);
+        Debug.Log(myData.payload.winAmount);
         slotManager.updateBalance();
     }
     void OnGameResult(string data)
@@ -602,15 +605,16 @@ public class SocketIOManager : MonoBehaviour
 
     }
 
-    internal void GambleDraw()
+    internal void GambleDraw(string types)
     {
         isResultdone = false;
         MessageData message = new MessageData();
         message.payload = new SentDeta();
         message.type = "GAMBLE";
         Debug.Log(slotManager.BetCounter);
-        message.payload.lastWinning = slotManager.BetCounter;
+        message.payload.lastWinning = lastwin;
         message.payload.Event = "draw";
+        message.payload.cardSelected = types;
         // Serialize message data to JSON
         string json = JsonUtility.ToJson(message);
         SendDataWithNamespace("request", json);
@@ -714,6 +718,7 @@ public class SentDeta
 {
     public int betIndex;
     public string Event;
+    public string cardSelected;
     public double lastWinning;
     public int index;
 }
@@ -729,6 +734,7 @@ public class FreeSpin
     public int scatterCount { get; set; }
     public int totalAwarded { get; set; }
     public int retriggers { get; set; }
+    public string expandingSymbolId { get; set; }
 }
 public class Gamble
 {
@@ -828,10 +834,9 @@ public class Payload
     public int activeLines { get; set; }
     //gamble
     public bool playerWon { get; set; }
-    public double currentWinning { get; set; }
-    public Cards cards { get; set; }
-    public double balance { get; set; }
+    public Card card { get; set; }
 
+    public ExpansionWin expansionWin { get; set; }
     //bonus
     public double payout { get; set; }
 }
@@ -918,4 +923,26 @@ public class AuthTokenData
     public string cookie;
     public string socketURL;
     public string nameSpace; //BackendChanges
+}
+public class ExpansionWin
+{
+    public string symbolId { get; set; }
+    public string symbolName { get; set; }
+    public int count { get; set; }
+    public double payout { get; set; }
+    public List<int> reelsExpanded { get; set; }
+    public List<string> expandedPositions { get; set; }
+    public List<List<string>> expandedMatrix { get; set; }
+    public List<WinningLine> winningLines { get; set; }
+}
+public class WinningLine
+{
+    public int lineIndex { get; set; }
+    public List<int> positions { get; set; }
+    public List<int> pattern { get; set; }
+}
+public class Card
+{
+    public string suit { get; set; }
+    public string value { get; set; }
 }
