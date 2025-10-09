@@ -211,6 +211,7 @@ public class GambleController : MonoBehaviour
         else
         {
             socketManager.OnCollect();
+            doubleButton.interactable = false;
             slotController.updateBalance();
             if (gamble_game) gamble_game.SetActive(false);
             if (isAutoSpinOn)
