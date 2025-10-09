@@ -1238,10 +1238,10 @@ public class SlotBehaviour : MonoBehaviour
         // {
         //     playBonus = true;
         // }
-        // if (SocketManager.ResultData.freeSpin.isFreeSpin)
-        // {
-        //     playFreespin = true;
-        // }
+        if (SocketManager.ResultData.features.freeSpin.isTriggered)
+        {
+            playFreespin = true;
+        }
         PlayFeatureAnimation(playScatter, playBonus, playFreespin);
     }
     private void PlayFeatureAnimation(bool scatter = false, bool bonus = false, bool freeSpin = false)
@@ -1261,7 +1261,7 @@ public class SlotBehaviour : MonoBehaviour
                     {
                         StartGameAnimation(Tempimages[j].slotImages[i].gameObject);
                     }
-                    if (freeSpin && parsedNumber == 10)
+                    if (freeSpin && parsedNumber == 9)
                     {
                         StartGameAnimation(Tempimages[j].slotImages[i].gameObject);
                     }

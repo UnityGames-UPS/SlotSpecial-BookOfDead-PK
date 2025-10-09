@@ -52,8 +52,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button SettingExit_button;
     [SerializeField] private Button Setting_back_button;
     [SerializeField] private GameObject Setting_panel;
-    [SerializeField] private Slider Sound_slider;
-    [SerializeField] private Slider Music_slider;
+    [SerializeField] private Button Sound_slider;
+    [SerializeField] private GameObject SoundOn;
+    [SerializeField] private GameObject SoundOFF;
+
+    [SerializeField] private Button Music_slider;
+    [SerializeField] private GameObject MusicOn;
+    [SerializeField] private GameObject MusicOFF;
 
     [Header("Splash Screen")]
     [SerializeField]
@@ -111,6 +116,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite MegaWin_Sprite;
     [SerializeField] private Sprite Scater_Sprite;
     [SerializeField] private Button MegaWinHideBtn;
+    private bool music = true;
+    private bool sound = true;
 
     [Header("FreeSpins Popup")]
     [SerializeField]
@@ -202,11 +209,11 @@ public class UIManager : MonoBehaviour
         if (Setting_button) Setting_button.onClick.RemoveAllListeners();
         if (Setting_button) Setting_button.onClick.AddListener(delegate { OpenPopup(Setting_panel); });
 
-        if (Sound_slider) Sound_slider.onValueChanged.RemoveAllListeners();
-        if (Sound_slider) Sound_slider.onValueChanged.AddListener(delegate { ChangeSound(); });
+        if (Sound_slider) Sound_slider.onClick.RemoveAllListeners();
+        if (Sound_slider) Sound_slider.onClick.AddListener(delegate { ChangeSound(); });
 
-        if (Music_slider) Music_slider.onValueChanged.RemoveAllListeners();
-        if (Music_slider) Music_slider.onValueChanged.AddListener(delegate { ChangeMusic(); });
+        if (Music_slider) Music_slider.onClick.RemoveAllListeners();
+        if (Music_slider) Music_slider.onClick.AddListener(delegate { ChangeMusic(); });
 
         if (FreeSpin_Button) FreeSpin_Button.onClick.RemoveAllListeners();
         if (FreeSpin_Button) FreeSpin_Button.onClick.AddListener(delegate { StartFreeSpins(FreeSpins); });
@@ -316,6 +323,7 @@ public class UIManager : MonoBehaviour
         }
         double initAmount = 0;
         double originalAmount = amount;
+        HederMiscWin.gameObject.SetActive(false);
         switch (type)
         {
             case 1:
@@ -336,26 +344,68 @@ public class UIManager : MonoBehaviour
         Win_Image.StartAnimation();
 
 
+        StartCoroutine(ShowMegaWin(amount));
+        // // Animate the number and fade-in together
+        // DOTween.To(() => initAmount, x => initAmount = x, amount, 1f)
+        //     .OnUpdate(() =>
+        //     {
+        //         if (megawin_text)
+        //         {
+        //             // Update the number
+        //             megawin_text.text = initAmount.ToString("F2");
+        //         }
+        //     });
 
-        // Animate the number and fade-in together
-        DOTween.To(() => initAmount, x => initAmount = x, amount, 1f)
-            .OnUpdate(() =>
-            {
-                if (megawin_text)
-                {
-                    // Update the number
-                    megawin_text.text = initAmount.ToString("F2");
-                }
-            });
+        // // Fade-in text
+        // if (megawin_text)
+        // {
+        //     megawin_text.DOFade(1f, 1f).From(0f);
+        // }
 
-        // Fade-in text
+        // DOVirtual.DelayedCall(3.5f, OnClickMegaWinHide);
+    }
+    IEnumerator ShowMegaWin(double amount)
+    {
+        float duration = 1f;      // animation duration
+        float displayTime = 3.5f; // how long to stay before hiding
+        float initAmount = 0f;
+        float timer = 0f;
+
         if (megawin_text)
         {
-            megawin_text.DOFade(1f, 1f).From(0f);
-        }
+            // Start fully transparent
+            megawin_text.alpha = 0f;
+            megawin_text.gameObject.SetActive(false);
+            yield return new WaitForSeconds(1f);
+            megawin_text.gameObject.SetActive(true);
+            HederMiscWin.gameObject.SetActive(true);
+            // Fade in text
+            megawin_text.DOFade(1f, duration).From(0f);
 
-        DOVirtual.DelayedCall(3.5f, OnClickMegaWinHide);
+            // Animate the number manually over time
+            while (timer < duration)
+            {
+                timer += Time.deltaTime;
+                float t = Mathf.Clamp01(timer / duration);
+
+                // Use float for interpolation, then cast back to double for precision
+                double current = Mathf.Lerp(initAmount, (float)amount, t);
+                megawin_text.text = current.ToString("F2");
+
+                yield return null;
+            }
+
+            // Ensure final value is exact
+            megawin_text.text = amount.ToString("F2");
+
+            // Wait for display time (not using DOTween)
+            yield return new WaitForSeconds(displayTime);
+
+            // Hide after delay
+            OnClickMegaWinHide();
+        }
     }
+
 
     private void OnClickMegaWinHide()
     {
@@ -530,13 +580,37 @@ public class UIManager : MonoBehaviour
 
     private void ChangeSound()
     {
-        audioController.ChangeVolume("wl", Sound_slider.value);
-        audioController.ChangeVolume("button", Sound_slider.value);
+        if (sound)
+        {
+            sound = false;
+
+        }
+        else
+        {
+            sound = true;
+        }
+
+        SoundOFF.SetActive(!sound);
+        SoundOn.SetActive(sound);
+        audioController.ToggleMute(!sound, "wl");
+        audioController.ToggleMute(!sound, "button");
     }
 
     private void ChangeMusic()
     {
-        audioController.ChangeVolume("bg", Music_slider.value);
+        if (music)
+        {
+            music = false;
+
+        }
+        else
+        {
+            music = true;
+        }
+
+        MusicOFF.SetActive(!music);
+        MusicOn.SetActive(music);
+        audioController.ToggleMute(!music, "bg");
 
     }
 }
