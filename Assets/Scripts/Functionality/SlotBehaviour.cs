@@ -1368,7 +1368,7 @@ public class SlotBehaviour : MonoBehaviour
     {
         alltweens[index].Pause();
 
-        slotTransform.localPosition = new Vector2(slotTransform.localPosition.x, -200);
+        slotTransform.localPosition = new Vector2(slotTransform.localPosition.x, 0);
 
         // int tweenpos = (reqpos * (IconSizeFactor + SpaceFactor)) - (IconSizeFactor + (2 * SpaceFactor)) + 127;
         int tweenpos = -1180 + 352;
