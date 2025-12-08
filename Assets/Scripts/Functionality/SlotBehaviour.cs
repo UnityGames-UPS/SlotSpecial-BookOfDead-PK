@@ -534,6 +534,7 @@ public class SlotBehaviour : MonoBehaviour
 
     private void MaxBet()
     {
+        uiManager.InitialiseUIData(SocketManager.UIData.paylines);
         if (audioController) audioController.PlayButtonAudio();
 
         if (TotalBet_text) TotalBet_text.text = (SocketManager.InitialData.bets[SocketManager.InitialData.bets.Count - 1] * Lines).ToString();
@@ -1007,6 +1008,20 @@ public class SlotBehaviour : MonoBehaviour
         rowAnim.Sort();
         SplashParent.SetActive(true);
         int resultno = int.Parse(SocketManager.ResultData.features.freeSpin.expandingSymbolId);
+        if (resultno <= 4)
+        {
+            if (rowAnim.Count < 3)
+            {
+                yield break;
+            }
+        }
+        if (5 <= resultno && resultno <= 8)
+        {
+            if (rowAnim.Count < 2)
+            {
+                yield break;
+            }
+        }
         foreach (var row in rowAnim)
         {
             for (int i = 0; i < FreespinFill.Count; i++)
@@ -1366,21 +1381,32 @@ public class SlotBehaviour : MonoBehaviour
     }
     private IEnumerator StopTweening(int reqpos, Transform slotTransform, int index, bool isStop)
     {
-        alltweens[index].Pause();
+        // Kill infinite loop tween
+        if (alltweens[index] != null)
+            alltweens[index].Kill();
 
+        // STEP 1: Smoothly finish current spin to the bottom
+        yield return slotTransform
+            .DOLocalMoveY(-tweenHeight, 0.15f)   // quick smooth fall to end
+            .SetEase(Ease.Linear)
+            .WaitForCompletion();
+
+        // STEP 2: Snap to top for natural restart
         slotTransform.localPosition = new Vector2(slotTransform.localPosition.x, 0);
 
-        // int tweenpos = (reqpos * (IconSizeFactor + SpaceFactor)) - (IconSizeFactor + (2 * SpaceFactor)) + 127;
+        // STEP 3: Calculate final stop position
         int tweenpos = -1180 + 352;
-        alltweens[index] = slotTransform.DOLocalMoveY(tweenpos, 0.5f);
+
+        // STEP 4: Smooth stopping motion
+        alltweens[index] = slotTransform
+            .DOLocalMoveY(tweenpos, 0.6f)
+            .SetEase(Ease.OutQuad);
+
+        // Optional delay
         if (!isStop)
-        {
             yield return new WaitForSeconds(0.2f);
-        }
         else
-        {
             yield return null;
-        }
     }
 
     private void KillAllTweens()

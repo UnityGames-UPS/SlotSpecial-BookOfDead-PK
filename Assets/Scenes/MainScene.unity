@@ -2202,15 +2202,15 @@ MonoBehaviour:
   InfoButton: {fileID: 0}
   Infoback_button: {fileID: 8350658598583311106}
   SymbolsText:
-  - {fileID: 3015935119945079287}
-  - {fileID: 861111450548776427}
-  - {fileID: 8244956143397889077}
-  - {fileID: 2635825990310886390}
   - {fileID: 7709220136036973040}
   - {fileID: 1229986993038018171}
   - {fileID: 7185312708879119455}
   - {fileID: 3179836781847240848}
   - {fileID: 1968859614262967321}
+  - {fileID: 861111450548776427}
+  - {fileID: 8244956143397889077}
+  - {fileID: 2635825990310886390}
+  - {fileID: 3015935119945079287}
   - {fileID: 4679692574819893051}
   FreeSpin_Text: {fileID: 0}
   Scatter_Text: {fileID: 0}
@@ -2862,7 +2862,7 @@ MonoBehaviour:
   bonusController: {fileID: 1450274932}
   JSManager: {fileID: 1989661610}
   TestSocketURI: http://localhost:5000/
-  testToken: 26b41c08a1b84d90a01e104509fde616
+  testToken: c9679043efcd474ea99582cad8f5d90e
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

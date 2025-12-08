@@ -450,6 +450,10 @@ public class UIManager : MonoBehaviour
             {
                 text += "\n3x - " + paylines.symbols[i].multiplier[2] * multiplyer;
             }
+            if (paylines.symbols[i].multiplier.Count > 3)
+            {
+                text += "\n2x - " + paylines.symbols[i].multiplier[3] * multiplyer;
+            }
             if (SymbolsText[i]) SymbolsText[i].text = text;
         }
 
