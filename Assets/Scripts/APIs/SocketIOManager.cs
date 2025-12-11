@@ -221,12 +221,12 @@ public class SocketIOManager : MonoBehaviour
     } //Back2 end
     private void OnPongReceived(string data) //Back2 Start
     {
-        Debug.Log("✅ Received pong from server.");
+        // Debug.Log("✅ Received pong from server.");
         waitingForPong = false;
         missedPongs = 0;
         lastPongTime = Time.time;
-        Debug.Log($"⏱️ Updated last pong time: {lastPongTime}");
-        Debug.Log($"📦 Pong payload: {data}");
+        // Debug.Log($"⏱️ Updated last pong time: {lastPongTime}");
+        // Debug.Log($"📦 Pong payload: {data}");
     } //Back2 end
 
     private void OnError(string response)
@@ -295,7 +295,7 @@ public class SocketIOManager : MonoBehaviour
     {
         while (true)
         {
-            Debug.Log($"🟡 PingCheck | waitingForPong: {waitingForPong}, missedPongs: {missedPongs}, timeSinceLastPong: {Time.time - lastPongTime}");
+            // Debug.Log($"🟡 PingCheck | waitingForPong: {waitingForPong}, missedPongs: {missedPongs}, timeSinceLastPong: {Time.time - lastPongTime}");
 
             if (missedPongs == 0)
             {
@@ -324,7 +324,7 @@ public class SocketIOManager : MonoBehaviour
             // Send next ping
             waitingForPong = true;
             lastPongTime = Time.time;
-            Debug.Log("📤 Sending ping...");
+            // Debug.Log("📤 Sending ping...");
             SendDataWithNamespace("ping");
             yield return new WaitForSeconds(pingInterval);
         }
