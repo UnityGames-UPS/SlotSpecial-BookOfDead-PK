@@ -255,9 +255,9 @@ public class GambleController : MonoBehaviour
 
         if (HistoryCount < history.Count)
         {
-            HistoryCount++;
             history[HistoryCount].gameObject.SetActive(true);
             history[HistoryCount].sprite = tempSprite;
+            HistoryCount++;
         }
         else
         {

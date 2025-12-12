@@ -829,8 +829,8 @@ MonoBehaviour:
   cardIndi:
   - {fileID: 1542179676, guid: 127de9200d3bb413d9507ade0be774f0, type: 3}
   - {fileID: 2114720058, guid: 127de9200d3bb413d9507ade0be774f0, type: 3}
-  - {fileID: 1093622381, guid: 127de9200d3bb413d9507ade0be774f0, type: 3}
   - {fileID: 1270049381, guid: 127de9200d3bb413d9507ade0be774f0, type: 3}
+  - {fileID: 1093622381, guid: 127de9200d3bb413d9507ade0be774f0, type: 3}
   doubleButton: {fileID: 1093341995}
   RedBtn: {fileID: 993092460618216411}
   BlackBtn: {fileID: 5864817126884979241}
@@ -2862,7 +2862,7 @@ MonoBehaviour:
   bonusController: {fileID: 1450274932}
   JSManager: {fileID: 1989661610}
   TestSocketURI: http://localhost:5000/
-  testToken: b9783b4ddb424fa9b2b4ce0dda9cd73d
+  testToken: 963c4a50fa0548609cdd8a2eca2b6604
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -4824,7 +4824,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.049804688, y: -0.049926758}
+  m_AnchoredPosition: {x: -0.049804688, y: -0.049804688}
   m_SizeDelta: {x: 0.099975586, y: 0.099975586}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1052046349
