@@ -360,6 +360,7 @@ public class SlotBehaviour : MonoBehaviour
   {
     spinchances = SocketManager.ResultData.features.freeSpin.freeSpinCount;
     int i = 0;
+    Debug.Log("@@@@ Freespin start @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     while (spinchances - 1 > 0)
     {
       i++;
@@ -370,6 +371,7 @@ public class SlotBehaviour : MonoBehaviour
       if (FSnum_text) FSnum_text.text = (spinchances - 1).ToString() + " Free Spins Remaining";
       spinchances = SocketManager.ResultData.features.freeSpin.freeSpinCount;
     }
+    Debug.Log("@@@@ Freespin Complete@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     freeSpinsLeft = 0;
     if (FSBoard_Object) FSBoard_Object.SetActive(false);
 
@@ -534,6 +536,7 @@ public class SlotBehaviour : MonoBehaviour
 
   private void MaxBet()
   {
+    BetCounter = SocketManager.InitialData.bets.Count - 1;
     uiManager.InitialiseUIData(SocketManager.UIData.paylines);
     if (audioController) audioController.PlayButtonAudio();
 
@@ -728,8 +731,8 @@ public class SlotBehaviour : MonoBehaviour
   private IEnumerator TweenRoutine()
   {
     gambleController.GambleTweeningAnim(false);
-    currentBet = SocketManager.InitialData.bets[BetCounter] * SocketManager.InitialData.lines.Count;
-    // currentTotalBet=SocketManager.InitialData.bets[BetCounter]*SocketManager.InitialData.lines.Count;
+    //currentBet = SocketManager.InitialData.bets[BetCounter] * SocketManager.InitialData.lines.Count;
+    currentTotalBet = SocketManager.InitialData.bets[BetCounter] * SocketManager.InitialData.lines.Count;
     if (currentBalance < currentTotalBet && !IsFreeSpin)
     {
       CompareBalance();
@@ -991,14 +994,14 @@ public class SlotBehaviour : MonoBehaviour
       for (int j = 0; j < 5; j++)
       {
         int resultNum = int.Parse(SocketManager.ResultData.matrix[i][j]);
-        Debug.Log(SocketManager.ResultData.features.freeSpin.expandingSymbolId);
+        //        Debug.Log(SocketManager.ResultData.features.freeSpin.expandingSymbolId);
         int x = int.Parse(SocketManager.ResultData.features.freeSpin.expandingSymbolId);
-        Debug.Log(x);
+        //    Debug.Log(x);
         if (resultNum == x)
         {
           if (!rowAnim.Contains(j))
           {
-            Debug.Log("_______________________" + j);
+            // Debug.Log("_______________________" + j);
             rowAnim.Add(j);
 
           }

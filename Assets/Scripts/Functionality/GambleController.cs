@@ -86,7 +86,11 @@ public class GambleController : MonoBehaviour
         if (m_Collect_Button)
         {
             m_Collect_Button.onClick.RemoveAllListeners();
-            m_Collect_Button.onClick.AddListener(() => { slotController.GambleCollect(); gamble_game.SetActive(false); });
+            m_Collect_Button.onClick.AddListener(() =>
+            {
+                slotController.GambleCollect(); gamble_game.SetActive(false);
+                doubleButton.interactable = false;
+            });
         }
 
         // //Double Button Setup
@@ -134,6 +138,8 @@ public class GambleController : MonoBehaviour
     // Starts the gamble game
     void StartGamblegame()
     {
+        ColourWin.text = (socketManager.lastwin * 2).ToString();
+        SuitWin.text = (socketManager.lastwin * 4).ToString();
         //  isOut = false;
         //    if (GambleEnd_Object) GambleEnd_Object.SetActive(false); // Hide end screen
 

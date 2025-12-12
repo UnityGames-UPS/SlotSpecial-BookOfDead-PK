@@ -62,7 +62,7 @@ public class SocketIOManager : MonoBehaviour
     private int missedPongs = 0;
     private const int MaxMissedPongs = 5;
     private Coroutine PingRoutine; //Back2 end
-    private double lastwin;
+    internal double lastwin;
 
     // protected string nameSpace = "game";
     private void Start()
@@ -596,7 +596,7 @@ public class SocketIOManager : MonoBehaviour
         message.payload = new SentDeta();
         message.type = "GAMBLE";
         Debug.Log(slotManager.BetCounter);
-        message.payload.lastWinning = slotManager.BetCounter;
+        message.payload.lastWinning = lastwin;
         message.payload.Event = "init";
         // Serialize message data to JSON
         string json = JsonUtility.ToJson(message);
@@ -627,7 +627,7 @@ public class SocketIOManager : MonoBehaviour
         message.payload = new SentDeta();
         message.type = "GAMBLE";
 
-        message.payload.lastWinning = slotManager.BetCounter;
+        message.payload.lastWinning = lastwin;
         message.payload.Event = "collect";
         // Serialize message data to JSON
         string json = JsonUtility.ToJson(message);
