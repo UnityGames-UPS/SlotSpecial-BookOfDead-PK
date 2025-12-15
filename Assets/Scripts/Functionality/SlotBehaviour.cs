@@ -365,10 +365,10 @@ public class SlotBehaviour : MonoBehaviour
     {
       i++;
       uiManager.FreeSpins--;
+      if (FSnum_text) FSnum_text.text = (spinchances - 1).ToString() + " Free Spins Remaining";
       StartSlots(IsAutoSpin);
       yield return tweenroutine;
       yield return new WaitForSeconds(SpinDelay);
-      if (FSnum_text) FSnum_text.text = (spinchances - 1).ToString() + " Free Spins Remaining";
       spinchances = SocketManager.ResultData.features.freeSpin.freeSpinCount;
     }
     Debug.Log("@@@@ Freespin Complete@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -437,7 +437,7 @@ public class SlotBehaviour : MonoBehaviour
 
   private void CompareBalance()
   {
-    if (currentBalance < currentTotalBet)
+    if (SocketManager.PlayerData.balance < currentTotalBet)
     {
       uiManager.LowBalPopup();
       // if (AutoSpin_Button) AutoSpin_Button.interactable = false;
@@ -733,7 +733,7 @@ public class SlotBehaviour : MonoBehaviour
     gambleController.GambleTweeningAnim(false);
     //currentBet = SocketManager.InitialData.bets[BetCounter] * SocketManager.InitialData.lines.Count;
     currentTotalBet = SocketManager.InitialData.bets[BetCounter] * SocketManager.InitialData.lines.Count;
-    if (currentBalance < currentTotalBet && !IsFreeSpin)
+    if (SocketManager.PlayerData.balance < currentTotalBet && !IsFreeSpin)
     {
       CompareBalance();
       if (IsAutoSpin)
