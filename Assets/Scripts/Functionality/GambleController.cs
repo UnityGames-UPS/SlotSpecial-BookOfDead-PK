@@ -201,7 +201,7 @@ public class GambleController : MonoBehaviour
         {
             ColourWin.text = 0.ToString();
             SuitWin.text = "0";
-            winamount.text = "You Loose";
+            winamount.text = "You Lose";
 
         }
         yield return new WaitForSeconds(2f);
