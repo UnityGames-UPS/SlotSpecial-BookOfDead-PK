@@ -2261,6 +2261,7 @@ MonoBehaviour:
   GameExitBonus_Button: {fileID: 0}
   slotManager: {fileID: 2046803210}
   socketManager: {fileID: 500036492}
+  jsFunctCalls: {fileID: 1989661610}
   RaycastBlocker: {fileID: 2065794936}
   m_AwakeGameButton: {fileID: 1052046349}
 --- !u!1 &435718832

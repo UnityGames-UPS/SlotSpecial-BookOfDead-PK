@@ -16,6 +16,9 @@ public class AudioController : MonoBehaviour
     [SerializeField] private SlotBehaviour slotBehaviour;
 
 
+    private readonly Dictionary<AudioSource, bool> preFocusMuteState = new Dictionary<AudioSource, bool>();
+    private bool isForceMuted = false;
+
     private void Start()
     {
         if (bg_adudio) bg_adudio.Play();
@@ -23,53 +26,43 @@ public class AudioController : MonoBehaviour
         audioSpin_button.clip = clips[clips.Length - 2];
     }
 
-    internal void CheckFocusFunction(bool focus, bool IsSpinning)
+    private IEnumerable<AudioSource> AllSources()
     {
-        if (!focus)
+        yield return bg_adudio;
+        yield return bg_audioBonus;
+        yield return audioPlayer_wl;
+        yield return audioPlayer_button;
+        yield return audioSpin_button;
+        yield return audioPlayer_Bonus;
+    }
+
+    // Focus-driven mute. Called from BOTH the JS OnFocusChanged path and OnApplicationFocus.
+    internal void SetMuteAll(bool forceMute)
+    {
+        if (forceMute == isForceMuted) return;
+        isForceMuted = forceMute;
+
+        foreach (AudioSource source in AllSources())
         {
-            bg_adudio.Pause();
-            audioPlayer_wl.Pause();
-            audioPlayer_button.Pause();
-        }
-        else
-        {
-            if (!bg_adudio.mute) bg_adudio.UnPause();
-            if (IsSpinning)
+            if (source == null) continue;
+            if (forceMute)
             {
-                if (!audioPlayer_wl.mute) audioPlayer_wl.UnPause();
+                preFocusMuteState[source] = source.mute;
+                source.mute = true;
             }
             else
             {
-                StopWLAaudio();
+                source.mute = preFocusMuteState.TryGetValue(source, out bool prevMuted) ? prevMuted : source.mute;
             }
-            if (!audioPlayer_button.mute) audioPlayer_button.UnPause();
-
         }
     }
 
-    void RecieveReactNativeAudioChanges(bool focus)
+    // An explicit user interaction proves the game has real focus, so it always wins over a
+    // stale/unpaired blur signal that left the forced mute stuck on.
+    private void ClearForceMute()
     {
-        Debug.Log("React-Native Audio Changes Called");
-
-        if (focus)
-        {
-            if (!bg_adudio.mute) bg_adudio.UnPause();
-            if (slotBehaviour.IsSpinning)
-            {
-                if (!audioPlayer_wl.mute) audioPlayer_wl.UnPause();
-            }
-            else
-            {
-                StopWLAaudio();
-            }
-            if (!audioPlayer_button.mute) audioPlayer_button.UnPause();
-        }
-        else
-        {
-            bg_adudio.Pause();
-            audioPlayer_wl.Pause();
-            audioPlayer_button.Pause();
-        }
+        isForceMuted = false;
+        preFocusMuteState.Clear();
     }
 
     internal void SwitchBGSound(bool isbonus)
@@ -169,6 +162,7 @@ public class AudioController : MonoBehaviour
 
     internal void ToggleMute(bool toggle, string type = "all")
     {
+        ClearForceMute();
         switch (type)
         {
             case "bg":
@@ -192,6 +186,7 @@ public class AudioController : MonoBehaviour
 
     internal void ChangeVolume(string type, float vol)
     {
+        ClearForceMute();
         switch (type)
         {
             case "bg":
