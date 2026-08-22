@@ -698,7 +698,7 @@ public class SlotBehaviour : MonoBehaviour
         AutoSpinRoutine = null;
       }
     }
-    if (TotalWin_text) TotalWin_text.text = "0.00";
+    if (TotalWin_text) TotalWin_text.text = "0.000";
     if (SlotAnimRoutine != null)
     {
       StopCoroutine(SlotAnimRoutine);
@@ -1165,7 +1165,7 @@ public class SlotBehaviour : MonoBehaviour
     if (LineBet_text) LineBet_text.text = 10.ToString();
     if (TotalBet_text) TotalBet_text.text = (SocketManager.InitialData.bets[BetCounter] * Lines).ToString();
     if (Bet_text) Bet_text.text = (SocketManager.InitialData.bets[BetCounter] * Lines).ToString();
-    if (TotalWin_text) TotalWin_text.text = "0.00";
+    if (TotalWin_text) TotalWin_text.text = "0.000";
     if (Balance_text) Balance_text.text = SocketManager.PlayerData.balance.ToString("f2");
     currentBalance = SocketManager.PlayerData.balance;
     currentTotalBet = SocketManager.InitialData.bets[BetCounter] * Lines;

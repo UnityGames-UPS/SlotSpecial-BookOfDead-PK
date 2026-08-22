@@ -159,10 +159,18 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] internal GameObject RaycastBlocker;
 
+    // Every popup lives under MainPopup_Object (PopupPanel). The parent must only be
+    // switched off once nothing is open anymore, otherwise closing one popup hides the
+    // others while leaving their activeSelf true - they then reappear the next time any
+    // popup opens. This set is the single source of truth for what is currently open.
+    private readonly HashSet<GameObject> openPopups = new HashSet<GameObject>();
+
     [SerializeField] private Button m_AwakeGameButton;
 
     private void Awake()
     {
+        CloseAllPopups();
+
         // if (Loading_Object) Loading_Object.SetActive(true);
         // StartCoroutine(LoadingRoutine());
 
@@ -305,8 +313,7 @@ public class UIManager : MonoBehaviour
     private void StartFreeSpins(int spins)
     {
         Debug.Log("DevTest" + "here4");
-        if (MainPopup_Object) MainPopup_Object.SetActive(false);
-        if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(false);
+        ClosePopup(FreeSpinPopup_Object, false);
         slotManager.FreeSpin(spins);
     }
 
@@ -317,9 +324,8 @@ public class UIManager : MonoBehaviour
         FreeSpins = spins;
 
 
-        if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(true);
+        OpenPopup(FreeSpinPopup_Object, false);
         if (Free_Text) Free_Text.text = "You are awarded with " + ExtraSpins.ToString() + " extra free spins.";
-        if (MainPopup_Object) MainPopup_Object.SetActive(true);
         DOVirtual.DelayedCall(2f, () =>
         {
             StartFreeSpins(spins);
@@ -353,8 +359,7 @@ public class UIManager : MonoBehaviour
                 if (HederMiscWin) HederMiscWin.text = "Total Win";
                 break;
         }
-        if (megawin) megawin.SetActive(true);
-        if (MainPopup_Object) MainPopup_Object.SetActive(true);
+        OpenPopup(megawin, false);
         Win_Image.StartAnimation();
 
 
@@ -423,8 +428,10 @@ public class UIManager : MonoBehaviour
 
     private void OnClickMegaWinHide()
     {
-        if (MainPopup_Object) MainPopup_Object.SetActive(false);
-        if (megawin) megawin.SetActive(false);
+        // Only the win popup is dismissed here. Anything the player had open before the
+        // win landed (settings, paytable) stays open, and a reconnect/disconnect popup is
+        // never torn down by a win timing out behind it.
+        ClosePopup(megawin, false);
         if (megawin_text) megawin_text.text = "0";
         slotManager.CheckPopups = false;
     }
@@ -505,32 +512,71 @@ public class UIManager : MonoBehaviour
 
     private void OpenPopup(GameObject Popup)
     {
-        if (audioController) audioController.PlayButtonAudio();
-        if (Popup) Popup.SetActive(true);
-        if (MainPopup_Object) MainPopup_Object.SetActive(true);
+        OpenPopup(Popup, true);
     }
-    internal void CheckAndClosePopups()
+
+    private void OpenPopup(GameObject Popup, bool playAudio)
     {
+        if (!Popup) return;
+        if (playAudio && audioController) audioController.PlayButtonAudio();
 
-        if (ReconectingPopup_Object.activeInHierarchy)
-        {
-            ClosePopup(ReconectingPopup_Object);
-        }
-        if (DisconnectPopup_Object.activeInHierarchy)
-        {
-            ClosePopup(DisconnectPopup_Object);
-        }
+        openPopups.Add(Popup);
+        Popup.SetActive(true);
+        RefreshMainPopup();
     }
-
 
     private void ClosePopup(GameObject Popup)
     {
-        if (audioController) audioController.PlayButtonAudio();
+        ClosePopup(Popup, true);
+    }
 
-        if (Popup) Popup.SetActive(false);
-        if (!DisconnectPopup_Object.activeSelf)
+    private void ClosePopup(GameObject Popup, bool playAudio)
+    {
+        if (!Popup) return;
+        if (playAudio && audioController) audioController.PlayButtonAudio();
+
+        openPopups.Remove(Popup);
+        Popup.SetActive(false);
+        RefreshMainPopup();
+    }
+
+    // Keeps the shared parent in sync with what is actually open, and drops any popup that
+    // was switched off elsewhere so nothing stays cached and pops back up later.
+    private void RefreshMainPopup()
+    {
+        openPopups.RemoveWhere(popup => popup == null || !popup.activeSelf);
+        if (MainPopup_Object) MainPopup_Object.SetActive(openPopups.Count > 0);
+    }
+
+    // Hard reset - used on startup so a popup left enabled in the editor never leaks into play.
+    private void CloseAllPopups()
+    {
+        GameObject[] allPopups =
         {
-            if (MainPopup_Object) MainPopup_Object.SetActive(false);
+            PaytablePopup_Object, PayPopup_Object, Setting_panel, megawin, FreeSpinPopup_Object,
+            LBPopup_Object, QuitPopup_Object, ReconectingPopup_Object, DisconnectPopup_Object,
+            ADPopup_Object
+        };
+
+        foreach (GameObject popup in allPopups)
+        {
+            if (popup) popup.SetActive(false);
+        }
+
+        openPopups.Clear();
+        if (MainPopup_Object) MainPopup_Object.SetActive(false);
+    }
+
+    internal void CheckAndClosePopups()
+    {
+
+        if (ReconectingPopup_Object && ReconectingPopup_Object.activeSelf)
+        {
+            ClosePopup(ReconectingPopup_Object, false);
+        }
+        if (DisconnectPopup_Object && DisconnectPopup_Object.activeSelf)
+        {
+            ClosePopup(DisconnectPopup_Object, false);
         }
     }
 
